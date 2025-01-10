@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { drawCanvas } from "$lib/controls";
+    import { canvasState, setCanvas } from "$lib/store";
     import { onMount } from "svelte";
 
 
@@ -8,10 +10,15 @@
         canvas.width = document.documentElement.clientWidth;
         canvas.height = document.documentElement.clientHeight;
 
-        console.log(canvas.width, canvas.height);
+        // console.log(canvas.width, canvas.height);
+        drawCanvas();
     }
 
-    onMount(onResize);
+    onMount(() => {
+        // store canvas globally
+        setCanvas(canvas);
+        onResize();
+    });
 
 </script>
 
