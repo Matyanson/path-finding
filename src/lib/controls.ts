@@ -1,5 +1,18 @@
 import { get } from "svelte/store";
 import { canvasState, dotSpacing, finishIndex, points, startIndex } from "./store";
+import type { Coords } from "./model";
+
+export function moveStartPoint(delta: Coords) {
+    points.update(p => {
+        const newPoints = [...p];
+        const start = p[get(startIndex)];
+        newPoints[get(startIndex)] = {
+            x: start.x + delta.x,
+            y: start.y + delta.y
+        };
+        return newPoints;
+    });
+}
 
 export function updateCanvas() {
     if(!get(canvasState)) return;

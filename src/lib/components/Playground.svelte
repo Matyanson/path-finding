@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { drawCanvas } from "$lib/controls";
-    import { canvasState, setCanvas } from "$lib/store";
+    import { moveStartPoint, updateCanvas } from "$lib/controls";
     import type { Coords } from "$lib/model";
     import { createMouseController } from "$lib/mouseController";
     import { setCanvas } from "$lib/store";
@@ -17,8 +16,13 @@
         updateCanvas();
     }
 
+    function onMouseMove(delta: Coords) {
+        moveStartPoint(delta);
+    }
+
     onMount(() => {
         mouseController.init(canvas);
+        mouseController.deltaPosition.subscribe(onMouseMove);
 
         // store canvas globally
         setCanvas(canvas);

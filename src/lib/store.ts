@@ -1,4 +1,5 @@
 import { derived, writable } from "svelte/store";
+import type { Coords } from "./model";
 import { updateCanvas } from "./controls";
 
 export const canvasState = writable<{ canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D }>();
