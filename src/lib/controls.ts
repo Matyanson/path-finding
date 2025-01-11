@@ -1,8 +1,13 @@
 import { get } from "svelte/store";
 import { canvasState, dotSpacing, finishIndex, points, startIndex } from "./store";
 
-export function drawCanvas() {
+export function updateCanvas() {
+    if(!get(canvasState)) return;
+
     const { canvas, ctx } = get(canvasState);
+
+    //clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // draw coord points
     ctx.fillStyle = "#aaa";

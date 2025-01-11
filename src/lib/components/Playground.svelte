@@ -14,8 +14,7 @@
         canvas.width = document.documentElement.clientWidth;
         canvas.height = document.documentElement.clientHeight;
 
-        // console.log(canvas.width, canvas.height);
-        drawCanvas();
+        updateCanvas();
     }
 
     onMount(() => {
