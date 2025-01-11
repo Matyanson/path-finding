@@ -12,10 +12,10 @@ export function movePoint(index: number, delta: Coords) {
         if(!p[index]) return p;
 
         const newPoints = [...p];
-        const start = p[get(startIndex)];
-        newPoints[get(startIndex)] = {
-            x: start.x + delta.x,
-            y: start.y + delta.y
+        const point = p[index];
+        newPoints[index] = {
+            x: point.x + delta.x,
+            y: point.y + delta.y
         };
         return newPoints;
     });

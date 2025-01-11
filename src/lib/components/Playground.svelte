@@ -2,8 +2,9 @@
     import { movePoint, updateCanvas } from "$lib/controls";
     import type { Coords } from "$lib/model";
     import { createMouseController } from "$lib/mouseController";
-    import { setCanvas, startIndex } from "$lib/store";
+    import { selectedEntity, selectedType, setCanvas, startIndex } from "$lib/store";
     import { onMount } from "svelte";
+    import Controls from "./Controls.svelte";
 
 
     let canvas: HTMLCanvasElement;
@@ -17,7 +18,11 @@
     }
 
     function onMouseMove(delta: Coords) {
-        movePoint(0, delta);
+        switch($selectedType) {
+            case 0:
+                movePoint($selectedEntity, delta);
+                break;
+        }
     }
 
     onMount(() => {
@@ -34,11 +39,20 @@
     });
 </script>
 
+<div class="controls">
+    <Controls />
+</div>
+
 <canvas bind:this={canvas}></canvas>
 <svelte:window on:resize={onResize} />
 
 <style>
-     canvas {
-        display: block;
-     }
+    canvas {
+    display: block;
+    }
+    .controls {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
 </style>
