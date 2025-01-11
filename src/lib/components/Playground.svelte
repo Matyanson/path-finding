@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { moveStartPoint, updateCanvas } from "$lib/controls";
+    import { movePoint, updateCanvas } from "$lib/controls";
     import type { Coords } from "$lib/model";
     import { createMouseController } from "$lib/mouseController";
-    import { setCanvas } from "$lib/store";
+    import { setCanvas, startIndex } from "$lib/store";
     import { onMount } from "svelte";
 
 
@@ -17,7 +17,7 @@
     }
 
     function onMouseMove(delta: Coords) {
-        moveStartPoint(delta);
+        movePoint(0, delta);
     }
 
     onMount(() => {

@@ -9,12 +9,7 @@ export const startIndex = writable(0);
 export const finishIndex = writable(1);
 
 const allStores = [canvasState, dotSpacing, points, startIndex, finishIndex];
-
-// update canvas on state change
-const sharedStore = derived(allStores, (val) => val);
-sharedStore.subscribe(() => {
-    updateCanvas();
-});
+export const sharedStore = derived(allStores, (val) => val);
 
 export function setCanvas(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d');
