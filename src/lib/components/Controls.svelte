@@ -2,6 +2,7 @@
     import { points, selectedEntity, selectedType } from "$lib/store";
     import IconButton from "./IconButton.svelte";
     import ItemButton from "./ItemButton.svelte";
+    import WorkerControls from "./WorkerControls.svelte";
 
     let closed = true;
 
@@ -18,6 +19,8 @@
         {/each}
         obstacles:
         <IconButton src="icons/plus-circle.svg" alt="add obstacle" />
+        Calculation:
+        <WorkerControls />
     </div>
 </div>
 
