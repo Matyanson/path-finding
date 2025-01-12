@@ -17,7 +17,7 @@
             <ItemButton type={0} index={i} />
         {/each}
         obstacles:
-        <button>add</button>
+        <IconButton src="icons/plus-circle.svg" alt="add obstacle" />
     </div>
 </div>
 
