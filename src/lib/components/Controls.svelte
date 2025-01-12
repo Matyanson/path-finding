@@ -1,29 +1,20 @@
 <script lang="ts">
     import { points, selectedEntity, selectedType } from "$lib/store";
+    import IconButton from "./IconButton.svelte";
+    import ItemButton from "./ItemButton.svelte";
 
     let closed = true;
 
-    function selectItem(type: number, entity: number) {
-        $selectedType = type;
-        $selectedEntity = entity;
-    }
+    
 </script>
 
 <div class="options">
-    <button on:click={() => closed = !closed}>
-        Options
-    </button>
+    <IconButton on:click={() => closed = !closed} src="icons/settings.svg" alt="open settings" />
     <div class="menu" class:closed>
-        <button on:click={() => closed = !closed}>
-            Close
-        </button>
+        <IconButton on:click={() => closed = !closed} src="icons/x-circle.svg" alt="close menu" />
         points:
         {#each $points as point, i}
-            <div class="item" class:selected={$selectedType == 0 && $selectedEntity == i} >
-                <button on:click={() => selectItem(0, i)}>
-                    p {i}
-                </button>
-            </div>
+            <ItemButton type={0} index={i} />
         {/each}
         obstacles:
         <button>add</button>
@@ -43,14 +34,12 @@
         flex-flow: column;
         padding: 1rem;
         background: #fff;
+        border: 5px solid #d5d5d5;
+        border-radius: 0.5rem;
 
         transition: all 0.5s;
     }
     .menu.closed {
         transform: translateX(100%);
-    }
-
-    .item.selected {
-        background: #c3ddff;
     }
 </style>
