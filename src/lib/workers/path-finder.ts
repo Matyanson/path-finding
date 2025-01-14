@@ -1,6 +1,10 @@
 /// <reference lib="webworker" />
 
-let mostRecentRequest: number | null = null;
+import dijkstra from "$lib/algorithms/dijkstra";
+import type { Coords, PathFindingAlgorithm, WorkerRequest } from "$lib/model";
+import { pixelToPoint } from "./util-functions";
+
+let mostRecentRequest: WorkerRequest | null = null;
 let isProcessing: boolean = false;
 
 self.onmessage = (event: MessageEvent) => {
@@ -24,18 +28,33 @@ async function processNextRequest() {
         mostRecentRequest = null;
 
         // do the calculation
-        const response = await mockPathFindingCalculation(requestData);
+        const response = await getResponse(requestData);
 
         // return result
-        self.postMessage(`Calculation no. ${response} done!`);
+        self.postMessage(response);
     }
     isProcessing = false;
 }
 
+async function getResponse(request: WorkerRequest) {
+    const { startPoint, endPoint, dotSpacing } = request;
+
+    // convert pixels to coords
+    const offset = { x: dotSpacing / 2, y: dotSpacing / 2 };
+    const start = pixelToPoint(startPoint, offset, dotSpacing);
+    const end = pixelToPoint(endPoint, offset, dotSpacing);
+
+    return dijkstra(start, end, dotSpacing);
+}
+
 // simulate heavy computation using a promise-based delay
-function mockPathFindingCalculation(input: any): Promise<void> {
+const mockPathFindingCalculation: PathFindingAlgorithm = (
+    startPoint: Coords,
+    endPoint: Coords,
+    dotSpacing: number
+) => {
     return new Promise((resolve) => {
         // Simulate a 1-second heavy computation
-        setTimeout(() => resolve(input), 1000);
+        setTimeout(() => resolve([]), 1000);
     });
 }
