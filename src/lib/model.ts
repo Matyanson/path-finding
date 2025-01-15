@@ -2,7 +2,8 @@
 export type WorkerRequest = {
     startPoint: Coords,
     endPoint: Coords,
-    dotSpacing: number
+    dotSpacing: number,
+    obstacles: Box[]
 }
 
 export type WorkerResponse = {
@@ -27,4 +28,10 @@ export type PathFindingAlgorithm = (
 export type Coords = {
     x: number,
     y: number
+}
+
+export type Box = {
+    coords: Coords,
+    width: number,
+    height: number
 }

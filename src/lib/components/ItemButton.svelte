@@ -12,7 +12,7 @@
 
 <button
 class="item"
-class:selected={$selectedType == 0 && $selectedEntity == index}
+class:selected={$selectedType == type && $selectedEntity == index}
 on:click={() => selectItem(type, index)}
 >
     <div class="head">{index}</div>

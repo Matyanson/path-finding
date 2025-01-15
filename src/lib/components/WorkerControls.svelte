@@ -42,7 +42,7 @@
 </script>
 
 <div>
-    <button on:click={startCalculation}>Start Calculation</button>
-    <button on:click={stopWorker}>Stop Calculation</button>
+    <button on:click={startCalculation}>Start</button>
+    <button on:click={stopWorker}>Stop</button>
     <button on:click={clearPath}>Clear Path</button>
 </div>

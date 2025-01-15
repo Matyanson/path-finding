@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { canvasState, derivedCanvasState, derivedPathState, dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes, worker } from "./store";
+import { boxes, canvasState, derivedCanvasState, derivedPathState, dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes, worker } from "./store";
 import type { Coords, WorkerRequest } from "./model";
 
 // update canvas on state change
@@ -38,6 +38,23 @@ export function movePoint(index: number, delta: Coords) {
     });
 }
 
+export function moveObstacle(index: number, delta: Coords) {
+    boxes.update(b => {
+        if(!b[index]) return b;
+
+        const newBoxes = [...b];
+        const box = b[index];
+        const newCoords = {
+            x: box.coords.x + delta.x,
+            y: box.coords.y + delta.y
+        };
+        newBoxes[index] = {
+            ...box,
+            coords: newCoords
+        }
+        return newBoxes;
+    });
+}
 export function updateCanvas() {
     if(!get(canvasState)) return;
 
@@ -89,6 +106,14 @@ export function updateCanvas() {
     ctx.fillStyle = "#a00";
     drawPoint(ctx, finishCoords.x, finishCoords.y, 10);
 
+
+    // draw obstacles
+    ctx.fillStyle = "#333";
+    const boxList = get(boxes);
+    for(const box of boxList) {
+        drawRect(ctx, box.coords, box.width, box.height);
+    }
+
 }
 
 /* HELPER FUNCTIONS */
@@ -106,6 +131,13 @@ function drawLine(ctx: CanvasRenderingContext2D, p1: Coords, p2: Coords, width =
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
+    ctx.closePath();
+}
+
+function drawRect(ctx: CanvasRenderingContext2D, coords: Coords, width: number, height: number) {
+    ctx.beginPath();
+    ctx.rect(coords.x, coords.y, width, height);
+    ctx.fill();
     ctx.closePath();
 }
 

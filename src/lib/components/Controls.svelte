@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { points, selectedEntity, selectedType } from "$lib/store";
+    import { boxes, points, selectedEntity, selectedType } from "$lib/store";
     import IconButton from "./IconButton.svelte";
     import ItemButton from "./ItemButton.svelte";
     import WorkerControls from "./WorkerControls.svelte";
@@ -18,6 +18,9 @@
             <ItemButton type={0} index={i} />
         {/each}
         obstacles:
+        {#each $boxes as box, i}
+            <ItemButton type={1} index={i} />
+        {/each}
         <IconButton src="icons/plus-circle.svg" alt="add obstacle" />
         Calculation:
         <WorkerControls />

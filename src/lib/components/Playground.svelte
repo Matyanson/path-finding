@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { movePoint, updateCanvas } from "$lib/controls";
+    import { moveObstacle, movePoint, updateCanvas } from "$lib/controls";
     import type { Coords } from "$lib/model";
     import { createMouseController } from "$lib/mouseController";
     import { selectedEntity, selectedType, setCanvas, startIndex } from "$lib/store";
@@ -21,6 +21,9 @@
         switch($selectedType) {
             case 0:
                 movePoint($selectedEntity, delta);
+                break;
+            case 1:
+                moveObstacle($selectedEntity, delta)
                 break;
         }
     }
