@@ -1,24 +1,25 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import MyWorker from "$lib/workers/path-finder?worker&inline";
-    import type { WorkerRequest, WorkerResponse } from "$lib/model";
-    import { dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes, worker } from "$lib/store";
+    import type { WorkerResponse } from "$lib/model";
+    import { shortestPath, vertexes, worker } from "$lib/store";
     import { calculatePath } from "$lib/controls";
 
     onMount(() => {
-        // Initialize the worker
-        startWorker();
-
         return () => {
             $worker?.terminate();
         };
     });
 
-    function startWorker() {
+    function initWorker() {
         if(!$worker) {
             $worker = new MyWorker();
             $worker.onmessage = onMessage;
         }
+    }
+
+    function startCalculation() {
+        initWorker();
         calculatePath();
     }
 
@@ -41,7 +42,7 @@
 </script>
 
 <div>
-    <button on:click={startWorker}>Start Calculation</button>
+    <button on:click={startCalculation}>Start Calculation</button>
     <button on:click={stopWorker}>Stop Calculation</button>
     <button on:click={clearPath}>Clear Path</button>
 </div>
