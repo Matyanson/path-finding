@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 
 import dijkstra from "$lib/algorithms/dijkstra";
+import dijkstra_diagonal from "$lib/algorithms/dijkstra_diagonal";
 import type { WorkerRequest, WorkerResponse } from "$lib/model";
 import { pixelToPoint } from "./util-functions";
 
@@ -45,6 +46,7 @@ async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
     const end = pixelToPoint(endPoint, offset, dotSpacing);
 
     const res = await dijkstra(start, end, dotSpacing);
+    // const res = await dijkstra_diagonal(start, end, dotSpacing);
     
     return res;
 }

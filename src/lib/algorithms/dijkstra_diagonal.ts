@@ -9,7 +9,7 @@ type Vertex = {
 
 const vertexMap = new Map<StringCoords, Vertex>();
 
-const dijkstra: PathFindingAlgorithm = async (
+const dijkstra_diagonal: PathFindingAlgorithm = async (
     startPoint: Coords,
     endPoint: Coords,
     dotSpacing: number
@@ -69,6 +69,12 @@ function processNeighbours(coords: Coords): Coords[] {
     processNeighbour({ x: x - 1,  y: y },       dist + 1);
     processNeighbour({ x: x,      y: y - 1 },   dist + 1);
 
+    const root2 = Math.SQRT2;
+    updateNeighbour({ x: x + 1, y: y + 1}, coords, dist + root2);
+    updateNeighbour({ x: x - 1, y: y + 1}, coords, dist + root2);
+    updateNeighbour({ x: x - 1, y: y - 1}, coords, dist + root2);
+    updateNeighbour({ x: x + 1, y: y - 1}, coords, dist + root2);
+
     return nextNeighbours;
 
     // helper function
@@ -117,4 +123,4 @@ function getAllEdges() {
     return edges;
 }
 
-export default dijkstra;
+export default dijkstra_diagonal;
