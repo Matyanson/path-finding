@@ -8,8 +8,7 @@
 
     onMount(() => {
         // Initialize the worker
-        worker = new MyWorker();
-        worker.onmessage = onMessage;
+        resetWorker();
 
         return () => {
             worker.terminate();
@@ -17,7 +16,7 @@
     });
 
     function startWorker() {
-        if(!worker) return;
+        if(!worker) worker = new MyWorker();
         const request: WorkerRequest = {
             startPoint: $points[$startIndex],
             endPoint: $points[$finishIndex],
@@ -29,6 +28,7 @@
     function resetWorker() {
         worker?.terminate();
         worker = new MyWorker();
+        worker.onmessage = onMessage;
     }
 
     function onMessage(event: MessageEvent) {
