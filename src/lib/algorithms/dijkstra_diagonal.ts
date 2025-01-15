@@ -2,14 +2,15 @@ import type { Coords, Edge, PathFindingAlgorithm, StringCoords } from "$lib/mode
 import { coordsEqual, coordsToString, } from "$lib/workers/util-functions";
 
 type Vertex = {
-    edge: Edge,
+    coords: Coords,
+    parent: Coords,
     dist: number,
     visited: boolean
 }
 
 const vertexMap = new Map<StringCoords, Vertex>();
 
-const dijkstra_diagonal: PathFindingAlgorithm = async (
+const dijkstra: PathFindingAlgorithm = async (
     startPoint: Coords,
     endPoint: Coords,
     dotSpacing: number
@@ -21,11 +22,8 @@ const dijkstra_diagonal: PathFindingAlgorithm = async (
 
     let queue: Coords[] = [{...startPoint}];
     let endReached = false;
-    let it = 0;
-    const maxIt = 30;
 
-    while(queue.length > 0 && !endReached && it < maxIt) {
-        it++;
+    while(queue.length > 0 && !endReached) {
         const children: Coords[] = [];
         for(const coords of queue) {
             // 1. check for end vertex
@@ -44,10 +42,9 @@ const dijkstra_diagonal: PathFindingAlgorithm = async (
         console.log(queue.length > 0, !endReached);
     }
 
-    // get shortest path
     const shortestPath = getShortestPath(endPoint);
-    // get all edges
     const allEdges = getAllEdges();
+
 
     return {
         allEdges,
@@ -89,7 +86,8 @@ function updateNeighbour(coords: Coords, parentCoords: Coords, dist: number) {
     const key = coordsToString(coords);
     const vertex = vertexMap.get(key);
     const newVertex = {
-        edge: { coords, parent: parentCoords },
+        coords,
+        parent: parentCoords,
         dist,
         visited: false
     };
@@ -100,9 +98,6 @@ function updateNeighbour(coords: Coords, parentCoords: Coords, dist: number) {
 }
 
 function wasVisited(coords: Coords): boolean {
-    const isPresent = vertexMap.has(coordsToString(coords));
-    if(!isPresent) return false;
-
     const vertex = vertexMap.get(coordsToString(coords));
     return vertex?.visited ?? false;
 }
@@ -111,16 +106,18 @@ function getShortestPath(end: Coords) {
     const path: Edge[] = [];
 
     let curr = vertexMap.get(coordsToString(end));
-    while(curr && !coordsEqual(curr.edge.coords, curr.edge.parent)) {
-        path.push(curr.edge);
-        curr = vertexMap.get(coordsToString(curr.edge.parent));
+    while(curr && !coordsEqual(curr.coords, curr.parent)) {
+        path.push({ coords: curr.coords, parent: curr.parent });
+        curr = vertexMap.get(coordsToString(curr.parent));
     }
     return path;
 }
 
 function getAllEdges() {
-    const edges = [...vertexMap.values().map(v => v.edge)];
+    const edges = [...vertexMap.values().map(v => {
+        return { coords: v.coords, parent: v.parent }
+    })];
     return edges;
 }
 
-export default dijkstra_diagonal;
+export default dijkstra;
