@@ -1,8 +1,8 @@
 /// <reference lib="webworker" />
 
 import dijkstra from "$lib/algorithms/dijkstra";
-import type { Coords, PathFindingAlgorithm, StringCoords, Vertex, WorkerRequest, WorkerResponse } from "$lib/model";
-import { coordsEqual, coordsToString, pixelToPoint } from "./util-functions";
+import type { WorkerRequest, WorkerResponse } from "$lib/model";
+import { pixelToPoint } from "./util-functions";
 
 let mostRecentRequest: WorkerRequest | null = null;
 let isProcessing: boolean = false;
@@ -44,26 +44,7 @@ async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
     const start = pixelToPoint(startPoint, offset, dotSpacing);
     const end = pixelToPoint(endPoint, offset, dotSpacing);
 
-    const map = await dijkstra(start, end, dotSpacing);
+    const res = await dijkstra(start, end, dotSpacing);
     
-    // get all visited vertexes
-    const vertexes = [...map.values()];
-    // get shortest path
-    const shortestPath = getShortestPath(map, end);
-
-    return {
-        allEdges: vertexes,
-        shortestPath: shortestPath
-    }
-}
-
-function getShortestPath(map: Map<StringCoords, Vertex>, end: Coords) {
-    const path: Vertex[] = [];
-
-    let curr = map.get(coordsToString(end));
-    while(curr && !coordsEqual(curr.coords, curr.parent)) {
-        path.push(curr);
-        curr = map.get(coordsToString(curr.parent));
-    }
-    return path;
+    return res;
 }

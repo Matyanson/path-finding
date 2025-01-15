@@ -1,5 +1,5 @@
 import { derived, writable } from "svelte/store";
-import type { Coords, Vertex } from "./model";
+import type { Coords, Edge } from "./model";
 
 // canvas
 export const canvasState = writable<{ canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D }>();
@@ -14,8 +14,8 @@ export const selectedEntity = writable(0);
 
 // algorithm visualization
 export const worker = writable<Worker | null>(null);
-export const vertexes = writable<Vertex[]>([]);
-export const shortestPath = writable<Vertex[]>([]);
+export const vertexes = writable<Edge[]>([]);
+export const shortestPath = writable<Edge[]>([]);
 
 // update canvas
 const visualStores = [canvasState, dotSpacing, points, startIndex, finishIndex, vertexes];

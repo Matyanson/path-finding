@@ -6,29 +6,13 @@ export type WorkerRequest = {
 }
 
 export type WorkerResponse = {
-    allEdges: Vertex[],
-    shortestPath: Vertex[]
+    allEdges: Edge[],
+    shortestPath: Edge[]
 }
 
-export enum EdgeDir {
-    Right,
-    Down
-}
-
-export enum EdgeType {
-    Valid,
-    Blocked
-}
-
-export type GraphEdge = {
-    position: Coords,
-    direction: EdgeDir
-}
-
-export type Vertex = {
+export type Edge = {
     coords: Coords,
-    parent: Coords,
-    dist: number
+    parent: Coords
 }
 
 export type StringCoords = `${number};${number}`;
@@ -37,7 +21,7 @@ export type PathFindingAlgorithm = (
     startPoint: Coords,
     endPoint: Coords,
     dotSpacing: number
-) => Promise<Map<StringCoords, Vertex>>
+) => Promise<WorkerResponse>
 
 // canvas objects
 export type Coords = {

@@ -1,5 +1,11 @@
-import type { Coords, PathFindingAlgorithm, StringCoords, Vertex } from "$lib/model";
-import { coordsToString, } from "$lib/workers/util-functions";
+import type { Coords, Edge, PathFindingAlgorithm, StringCoords } from "$lib/model";
+import { coordsEqual, coordsToString, } from "$lib/workers/util-functions";
+
+type Vertex = {
+    edge: Edge,
+    dist: number,
+    visited: boolean
+}
 
 const vertexMap = new Map<StringCoords, Vertex>();
 
@@ -15,8 +21,11 @@ const dijkstra: PathFindingAlgorithm = async (
 
     let queue: Coords[] = [{...startPoint}];
     let endReached = false;
+    let it = 0;
+    const maxIt = 5;
 
-    while(queue.length > 0 && !endReached) {
+    while(queue.length > 0 && !endReached && it < maxIt) {
+        it++;
         const children: Coords[] = [];
         for(const coords of queue) {
             // 1. check for end vertex
@@ -35,13 +44,22 @@ const dijkstra: PathFindingAlgorithm = async (
         console.log(queue.length > 0, !endReached);
     }
 
-    return vertexMap;
+    // get shortest path
+    const shortestPath = getShortestPath(endPoint);
+    // get all edges
+    const allEdges = getAllEdges();
+
+    return {
+        allEdges,
+        shortestPath
+    };
 };
 
 
 function processNeighbours(coords: Coords): Coords[] {
     const vertex = vertexMap.get(coordsToString(coords));
     if(!vertex) return [];
+    vertex.visited = true;
 
     const nextNeighbours: Coords[] = [];
     const dist = vertex.dist;
@@ -65,9 +83,9 @@ function updateNeighbour(coords: Coords, parentCoords: Coords, dist: number) {
     const key = coordsToString(coords);
     const vertex = vertexMap.get(key);
     const newVertex = {
-        coords,
-        parent: parentCoords,
-        dist
+        edge: { coords, parent: parentCoords },
+        dist,
+        visited: false
     };
     if(!vertex || dist < vertex.dist) {
         // update value in the map
@@ -75,8 +93,28 @@ function updateNeighbour(coords: Coords, parentCoords: Coords, dist: number) {
     }
 }
 
-function wasVisited(coords: Coords) {
-    return vertexMap.has(coordsToString(coords));
+function wasVisited(coords: Coords): boolean {
+    const isPresent = vertexMap.has(coordsToString(coords));
+    if(!isPresent) return false;
+
+    const vertex = vertexMap.get(coordsToString(coords));
+    return vertex?.visited ?? false;
+}
+
+function getShortestPath(end: Coords) {
+    const path: Edge[] = [];
+
+    let curr = vertexMap.get(coordsToString(end));
+    while(curr && !coordsEqual(curr.edge.coords, curr.edge.parent)) {
+        path.push(curr.edge);
+        curr = vertexMap.get(coordsToString(curr.edge.parent));
+    }
+    return path;
+}
+
+function getAllEdges() {
+    const edges = [...vertexMap.values().map(v => v.edge)];
+    return edges;
 }
 
 export default dijkstra;
