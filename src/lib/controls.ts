@@ -38,7 +38,7 @@ export function updateCanvas() {
         drawLine(
             ctx,
             toCanvasCoords(coords, get(dotSpacing), offset),
-            toCanvasCoords(parent, get(dotSpacing), offset)
+            toCanvasCoords(parent, get(dotSpacing), offset),
         );
     }
 
@@ -50,7 +50,8 @@ export function updateCanvas() {
         drawLine(
             ctx,
             toCanvasCoords(coords, get(dotSpacing), offset),
-            toCanvasCoords(parent, get(dotSpacing), offset)
+            toCanvasCoords(parent, get(dotSpacing), offset),
+            4
         );
     }
 
@@ -81,9 +82,11 @@ function drawPoint(ctx: CanvasRenderingContext2D, x: number, y: number, r: numbe
     ctx.closePath();
 }
 
-function drawLine(ctx: CanvasRenderingContext2D, p1: Coords, p2: Coords) {
+function drawLine(ctx: CanvasRenderingContext2D, p1: Coords, p2: Coords, width = 1) {
+    ctx.lineWidth = width;
+
     ctx.beginPath();
-    ctx.lineTo(p1.x, p1.y);
+    ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
     ctx.closePath();
