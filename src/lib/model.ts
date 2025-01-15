@@ -21,7 +21,7 @@ export type StringCoords = `${number};${number}`;
 export type PathFindingAlgorithm = (
     startPoint: Coords,
     endPoint: Coords,
-    dotSpacing: number
+    obstacles: Box[]
 ) => Promise<WorkerResponse>
 
 // canvas objects

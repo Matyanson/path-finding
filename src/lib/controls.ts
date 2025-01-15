@@ -19,7 +19,8 @@ export function calculatePath() {
     const request: WorkerRequest = {
         startPoint: get(points)[get(startIndex)],
         endPoint: get(points)[get(finishIndex)],
-        dotSpacing: get(dotSpacing)
+        dotSpacing: get(dotSpacing),
+        obstacles: get(boxes)
     };
     w.postMessage(request);
 }

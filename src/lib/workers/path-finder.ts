@@ -2,8 +2,8 @@
 
 import dijkstra from "$lib/algorithms/dijkstra";
 import dijkstra_diagonal from "$lib/algorithms/dijkstra_diagonal";
-import type { WorkerRequest, WorkerResponse } from "$lib/model";
-import { pixelToPoint } from "./util-functions";
+import type { Box, WorkerRequest, WorkerResponse } from "$lib/model";
+import { pixelToPoint, pixelToPointRound } from "./util-functions";
 
 let mostRecentRequest: WorkerRequest | null = null;
 let isProcessing: boolean = false;
@@ -38,14 +38,29 @@ async function processNextRequest() {
 }
 
 async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
-    const { startPoint, endPoint, dotSpacing } = request;
+    const { startPoint, endPoint, dotSpacing, obstacles } = request;
 
-    // convert pixels to coords
+    // --- convert pixels to point coords ---
+    // points
     const offset = { x: dotSpacing / 2, y: dotSpacing / 2 };
-    const start = pixelToPoint(startPoint, offset, dotSpacing);
-    const end = pixelToPoint(endPoint, offset, dotSpacing);
+    const start = pixelToPointRound(startPoint, offset, dotSpacing);
+    const end = pixelToPointRound(endPoint, offset, dotSpacing);
 
-    const res = await dijkstra(start, end, dotSpacing);
+    // obstacles
+    const pointBoxes = obstacles.map(box => {
+        const dimensions = { x: box.width, y: box.height };
+        const pointDimensions = pixelToPoint(dimensions, { x: 0, y: 0 }, dotSpacing);
+        const res: Box =  {
+            coords: pixelToPoint(box.coords, offset, dotSpacing),
+            width: pointDimensions.x,
+            height: pointDimensions.y
+        }
+        return res;
+    })
+
+    console.log(start, end, pointBoxes);
+
+    const res = await dijkstra(start, end, pointBoxes);
     // const res = await dijkstra_diagonal(start, end, dotSpacing);
     
     return res;

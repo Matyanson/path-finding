@@ -7,7 +7,7 @@ export const dotSpacing = writable(50);
 export const points = writable<Coords[]>([{x: 25, y: 25}, {x: 525, y: 525}]);
 export const startIndex = writable(0);
 export const finishIndex = writable(1);
-export const boxes = writable<Box[]>([{ coords: {x:200,y:200}, width: 20, height: 80}]);
+export const boxes = writable<Box[]>([{ coords: {x:200,y:200}, width: 50, height: 200}]);
 
 //constrols
 export const selectedType = writable(0);

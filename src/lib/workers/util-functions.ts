@@ -1,9 +1,15 @@
 import type { Coords, StringCoords } from "$lib/model";
 
-export function pixelToPoint(pixel: Coords, offset: Coords, spacing: number) {
+export function pixelToPointRound(pixel: Coords, offset: Coords, spacing: number) {
     return {
         x: Math.round((pixel.x - offset.x) / spacing),
         y: Math.round((pixel.y - offset.y) / spacing)
+    }
+}
+export function pixelToPoint(pixel: Coords, offset: Coords, spacing: number) {
+    return {
+        x: (pixel.x - offset.x) / spacing,
+        y: (pixel.y - offset.y) / spacing
     }
 }
 
