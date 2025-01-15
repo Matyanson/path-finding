@@ -9,6 +9,10 @@ const dijkstra: PathFindingAlgorithm = async (
     dotSpacing: number
 ) => {
     vertexMap.clear();
+
+    // save start vertex to the map
+    updateNeighbour(startPoint, startPoint, 0);
+
     let queue: Coords[] = [{...startPoint}];
     let endReached = false;
 
@@ -24,6 +28,10 @@ const dijkstra: PathFindingAlgorithm = async (
             if(coords.x == endPoint.x && coords.y == endPoint.y)
                 endReached = true;
         }
+        
+        // 4. prepare for next itteration
+        queue = children;
+        console.log(queue.length > 0, !endReached);
     }
 
     // get all visited vertexes
