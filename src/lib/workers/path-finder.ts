@@ -58,8 +58,6 @@ async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
         return res;
     })
 
-    console.log(start, end, pointBoxes);
-
     const res = await dijkstra(start, end, pointBoxes);
     // const res = await dijkstra_diagonal(start, end, dotSpacing);
     

@@ -22,8 +22,9 @@ const dijkstra: PathFindingAlgorithm = async (
 
     let queue: Coords[] = [{...startPoint}];
     let endReached = false;
+    let i = 0;
 
-    while(queue.length > 0 && !endReached) {
+    while(queue.length > 0 && !endReached && i < 30) {
         const children: Coords[] = [];
         for(const coords of queue) {
             // 1. check for end vertex
@@ -39,7 +40,7 @@ const dijkstra: PathFindingAlgorithm = async (
         
         // 4. prepare for next itteration
         queue = children;
-        console.log(queue.length > 0, !endReached);
+        i++;
     }
 
     const shortestPath = getShortestPath(endPoint);
