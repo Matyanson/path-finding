@@ -2,33 +2,29 @@
     import { onMount } from "svelte";
     import MyWorker from "$lib/workers/path-finder?worker&inline";
     import type { WorkerRequest, WorkerResponse } from "$lib/model";
-    import { dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes } from "$lib/store";
-
-    let worker: Worker;
+    import { dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes, worker } from "$lib/store";
+    import { calculatePath } from "$lib/controls";
 
     onMount(() => {
         // Initialize the worker
-        resetWorker();
+        startWorker();
 
         return () => {
-            worker.terminate();
+            $worker?.terminate();
         };
     });
 
     function startWorker() {
-        if(!worker) worker = new MyWorker();
-        const request: WorkerRequest = {
-            startPoint: $points[$startIndex],
-            endPoint: $points[$finishIndex],
-            dotSpacing: $dotSpacing
-        };
-        worker.postMessage(request);
+        if(!$worker) {
+            $worker = new MyWorker();
+            $worker.onmessage = onMessage;
+        }
+        calculatePath();
     }
 
-    function resetWorker() {
-        worker?.terminate();
-        worker = new MyWorker();
-        worker.onmessage = onMessage;
+    function stopWorker() {
+        $worker?.terminate();
+        worker.set(null);
     }
 
     function onMessage(event: MessageEvent) {
@@ -37,9 +33,15 @@
         shortestPath.set(result.shortestPath);
         vertexes.set(result.allEdges);
     }
+
+    function clearPath() {
+        vertexes.set([]);
+        shortestPath.set([]);
+    }
 </script>
 
 <div>
     <button on:click={startWorker}>Start Calculation</button>
-    <button on:click={resetWorker}>Reset</button>
+    <button on:click={stopWorker}>Stop Calculation</button>
+    <button on:click={clearPath}>Clear Path</button>
 </div>

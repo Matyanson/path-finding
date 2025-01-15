@@ -1,11 +1,28 @@
 import { get } from "svelte/store";
-import { canvasState, dotSpacing, finishIndex, points, sharedStore, shortestPath, startIndex, vertexes } from "./store";
-import type { Coords, Vertex } from "./model";
+import { canvasState, derivedCanvasState, derivedPathState, dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes, worker } from "./store";
+import type { Coords, WorkerRequest } from "./model";
 
 // update canvas on state change
-sharedStore.subscribe(() => {
+derivedCanvasState.subscribe(() => {
     updateCanvas();
 });
+
+derivedPathState.subscribe(() => {
+    // update path
+    calculatePath();
+});
+
+export function calculatePath() {
+    const w = get(worker);
+    if(!w) return;
+    
+    const request: WorkerRequest = {
+        startPoint: get(points)[get(startIndex)],
+        endPoint: get(points)[get(finishIndex)],
+        dotSpacing: get(dotSpacing)
+    };
+    w.postMessage(request);
+}
 
 export function movePoint(index: number, delta: Coords) {
     points.update(p => {
