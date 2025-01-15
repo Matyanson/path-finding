@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import MyWorker from "$lib/workers/path-finder?worker&inline";
     import type { WorkerRequest, WorkerResponse } from "$lib/model";
-    import { dotSpacing, finishIndex, points, startIndex } from "$lib/store";
+    import { dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes } from "$lib/store";
 
     let worker: Worker;
 
@@ -34,7 +34,8 @@
     function onMessage(event: MessageEvent) {
         const result = event.data as WorkerResponse;
 
-        console.log(result);
+        shortestPath.set(result.shortestPath);
+        vertexes.set(result.allEdges);
     }
 </script>
 

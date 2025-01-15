@@ -1,8 +1,8 @@
 /// <reference lib="webworker" />
 
 import dijkstra from "$lib/algorithms/dijkstra";
-import type { Coords, PathFindingAlgorithm, WorkerRequest, WorkerResponse } from "$lib/model";
-import { pixelToPoint } from "./util-functions";
+import type { Coords, PathFindingAlgorithm, StringCoords, Vertex, WorkerRequest, WorkerResponse } from "$lib/model";
+import { coordsEqual, coordsToString, pixelToPoint } from "./util-functions";
 
 let mostRecentRequest: WorkerRequest | null = null;
 let isProcessing: boolean = false;
@@ -39,24 +39,31 @@ async function processNextRequest() {
 async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
     const { startPoint, endPoint, dotSpacing } = request;
 
-    console.log("get response...");
-
     // convert pixels to coords
     const offset = { x: dotSpacing / 2, y: dotSpacing / 2 };
     const start = pixelToPoint(startPoint, offset, dotSpacing);
     const end = pixelToPoint(endPoint, offset, dotSpacing);
 
-    return await dijkstra(start, end, dotSpacing);
+    const map = await dijkstra(start, end, dotSpacing);
+    
+    // get all visited vertexes
+    const vertexes = [...map.values()];
+    // get shortest path
+    const shortestPath = getShortestPath(map, end);
+
+    return {
+        allEdges: vertexes,
+        shortestPath: shortestPath
+    }
 }
 
-// simulate heavy computation using a promise-based delay
-const mockPathFindingCalculation: PathFindingAlgorithm = (
-    startPoint: Coords,
-    endPoint: Coords,
-    dotSpacing: number
-) => {
-    return new Promise((resolve) => {
-        // Simulate a 1-second heavy computation
-        setTimeout(() => resolve([]), 1000);
-    });
+function getShortestPath(map: Map<StringCoords, Vertex>, end: Coords) {
+    const path: Vertex[] = [];
+
+    let curr = map.get(coordsToString(end));
+    while(curr && !coordsEqual(curr.coords, curr.parent)) {
+        path.push(curr);
+        curr = map.get(coordsToString(curr.parent));
+    }
+    return path;
 }

@@ -19,14 +19,15 @@ const dijkstra: PathFindingAlgorithm = async (
     while(queue.length > 0 && !endReached) {
         const children: Coords[] = [];
         for(const coords of queue) {
-            // 1. process neighbours and get next ones to process
-            const nextNeighbours = processNeighbours(coords);
-            // 2. add nearest neighbours to the queue
-            children.push(...nextNeighbours);
-
-            // 3. check for end vertex
-            if(coords.x == endPoint.x && coords.y == endPoint.y)
+            // 1. check for end vertex
+            if(coords.x == endPoint.x && coords.y == endPoint.y){
                 endReached = true;
+                break;
+            }
+            // 2. process neighbours and get next ones to process
+            const nextNeighbours = processNeighbours(coords);
+            // 3. add nearest neighbours to the queue
+            children.push(...nextNeighbours);
         }
         
         // 4. prepare for next itteration
@@ -34,10 +35,7 @@ const dijkstra: PathFindingAlgorithm = async (
         console.log(queue.length > 0, !endReached);
     }
 
-    // get all visited vertexes
-    const vertexes = [...vertexMap.values()];
-    
-    return vertexes;
+    return vertexMap;
 };
 
 

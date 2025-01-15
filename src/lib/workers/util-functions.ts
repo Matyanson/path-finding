@@ -15,3 +15,7 @@ export function stringToCoords(str: StringCoords): Coords {
     const [ x, y ] = str.split(';');
     return { x: Number(x), y: Number(y) };
 }
+
+export function coordsEqual(c1: Coords, c2: Coords) {
+    return c1.x == c2.x && c1.y == c2.y;
+}

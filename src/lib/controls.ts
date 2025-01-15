@@ -1,6 +1,6 @@
 import { get } from "svelte/store";
-import { canvasState, dotSpacing, finishIndex, points, sharedStore, startIndex } from "./store";
-import type { Coords } from "./model";
+import { canvasState, dotSpacing, finishIndex, points, sharedStore, shortestPath, startIndex, vertexes } from "./store";
+import type { Coords, Vertex } from "./model";
 
 // update canvas on state change
 sharedStore.subscribe(() => {
@@ -25,14 +25,39 @@ export function updateCanvas() {
     if(!get(canvasState)) return;
 
     const { canvas, ctx } = get(canvasState);
+    const offset = get(dotSpacing) / 2;
 
     //clear
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // draw all paths
+    ctx.strokeStyle = "#aaa";
+    const edges = get(vertexes);
+    for(const edge of edges) {
+        const { coords, parent } = edge;
+        drawLine(
+            ctx,
+            toCanvasCoords(coords, get(dotSpacing), offset),
+            toCanvasCoords(parent, get(dotSpacing), offset)
+        );
+    }
+
+    // draw the shortest path
+    ctx.strokeStyle = "#0a0";
+    const path = get(shortestPath);
+    for(const edge of path) {
+        const { coords, parent } = edge;
+        drawLine(
+            ctx,
+            toCanvasCoords(coords, get(dotSpacing), offset),
+            toCanvasCoords(parent, get(dotSpacing), offset)
+        );
+    }
+
     // draw coord points
     ctx.fillStyle = "#aaa";
-    for (let y = get(dotSpacing) / 2; y < canvas.height; y += get(dotSpacing)) {
-        for (let x = get(dotSpacing) / 2; x < canvas.width; x+= get(dotSpacing)) {
+    for (let y = offset; y < canvas.height; y += get(dotSpacing)) {
+        for (let x = offset; x < canvas.width; x+= get(dotSpacing)) {
             drawPoint(ctx, x, y, 3);
         }
     }
@@ -54,4 +79,19 @@ function drawPoint(ctx: CanvasRenderingContext2D, x: number, y: number, r: numbe
     ctx.arc(x, y, r, 0, 2 * Math.PI);
     ctx.fill();
     ctx.closePath();
+}
+
+function drawLine(ctx: CanvasRenderingContext2D, p1: Coords, p2: Coords) {
+    ctx.beginPath();
+    ctx.lineTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function toCanvasCoords(coords: Coords, dotSpacing: number, offset: number) {
+    return { 
+        x: coords.x * dotSpacing + offset,
+        y: coords.y * dotSpacing + offset
+    };
 }

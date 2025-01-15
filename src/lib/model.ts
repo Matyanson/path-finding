@@ -5,7 +5,10 @@ export type WorkerRequest = {
     dotSpacing: number
 }
 
-export type WorkerResponse = Vertex[];
+export type WorkerResponse = {
+    allEdges: Vertex[],
+    shortestPath: Vertex[]
+}
 
 export enum EdgeDir {
     Right,
@@ -34,7 +37,7 @@ export type PathFindingAlgorithm = (
     startPoint: Coords,
     endPoint: Coords,
     dotSpacing: number
-) => Promise<Vertex[]>
+) => Promise<Map<StringCoords, Vertex>>
 
 // canvas objects
 export type Coords = {
