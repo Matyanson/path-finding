@@ -35,8 +35,8 @@
     }
 
     function clearPath() {
-        vertexes.set([]);
         shortestPath.set([]);
+        vertexes.set([]);
     }
 </script>
 
