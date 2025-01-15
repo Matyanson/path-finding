@@ -5,7 +5,7 @@ export type WorkerRequest = {
     dotSpacing: number
 }
 
-export type WorkerResponse = GraphEdge[];
+export type WorkerResponse = Vertex[];
 
 export enum EdgeDir {
     Right,

@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import MyWorker from "$lib/workers/path-finder?worker&inline";
+    import type { WorkerRequest, WorkerResponse } from "$lib/model";
+    import { dotSpacing, finishIndex, points, startIndex } from "$lib/store";
 
-    let result: string | null = null;
-    let inputValue = 0; // Start with 0
     let worker: Worker;
 
     onMount(() => {
@@ -18,8 +18,12 @@
 
     function startWorker() {
         if(!worker) return;
-        worker.postMessage(inputValue);
-        inputValue++;
+        const request: WorkerRequest = {
+            startPoint: $points[$startIndex],
+            endPoint: $points[$finishIndex],
+            dotSpacing: $dotSpacing
+        };
+        worker.postMessage(request);
     }
 
     function resetWorker() {
@@ -28,15 +32,13 @@
     }
 
     function onMessage(event: MessageEvent) {
-        result = event.data;
+        const result = event.data as WorkerResponse;
+
+        console.log(result);
     }
 </script>
 
 <div>
     <button on:click={startWorker}>Start Calculation</button>
     <button on:click={resetWorker}>Reset</button>
-
-    {#if result}
-        <p>Result: {result}</p>
-    {/if}
 </div>
