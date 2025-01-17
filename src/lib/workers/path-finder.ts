@@ -5,36 +5,27 @@ import dijkstra_diagonal from "$lib/algorithms/dijkstra_diagonal";
 import type { Box, WorkerRequest, WorkerResponse } from "$lib/model";
 import { pixelToPoint, pixelToPointRound } from "./util-functions";
 
-let mostRecentRequest: WorkerRequest | null = null;
-let isProcessing: boolean = false;
+let lastRequestProcessedTime = 0;   // relative to originTime
 
 self.onmessage = (event: MessageEvent) => {
     // update request
-    mostRecentRequest = event.data;
+    const request = event.data as WorkerRequest;
 
-    // Start processing if last request is finished
-    if (!isProcessing) {
-        processNextRequest();
+    // Start processing if event is not outdated
+    if (request.timestamp > lastRequestProcessedTime) {
+        processNextRequest(request);
     }
 };
 
-async function processNextRequest() {
-    isProcessing = true;
-    // do until no requests are found
-    while(mostRecentRequest) {
-        // save input data
-        const requestData = mostRecentRequest;
+async function processNextRequest(request: WorkerRequest) {
+    // do the calculation
+    const response = await getResponse(request);
 
-        // mark the request as completed
-        mostRecentRequest = null;
+    // return result
+    self.postMessage(response);
 
-        // do the calculation
-        const response = await getResponse(requestData);
-
-        // return result
-        self.postMessage(response);
-    }
-    isProcessing = false;
+    // record timestamp of completion relative to origin
+    lastRequestProcessedTime = performance.now() + performance.timeOrigin;
 }
 
 async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
@@ -58,8 +49,12 @@ async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
         return res;
     })
 
-    const res = await dijkstra(start, end, pointBoxes);
-    // const res = await dijkstra_diagonal(start, end, dotSpacing);
+    // const res = await dijkstra(start, end, pointBoxes);
+    const res = await dijkstra_diagonal(start, end, pointBoxes);
     
     return res;
+}
+
+function sleep(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
 }
