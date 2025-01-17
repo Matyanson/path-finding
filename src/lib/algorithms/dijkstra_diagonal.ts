@@ -1,4 +1,4 @@
-import type { Coords, Edge, PathFindingAlgorithm, StringCoords } from "$lib/model";
+import type { Box, Coords, Edge, PathFindingAlgorithm, StringCoords } from "$lib/model";
 import { coordsEqual, coordsToString, } from "$lib/workers/util-functions";
 
 type Vertex = {
@@ -10,10 +10,10 @@ type Vertex = {
 
 const vertexMap = new Map<StringCoords, Vertex>();
 
-const dijkstra: PathFindingAlgorithm = async (
+const dijkstra_diagonal: PathFindingAlgorithm = async (
     startPoint: Coords,
     endPoint: Coords,
-    dotSpacing: number
+    obstacles: Box[]
 ) => {
     vertexMap.clear();
 
@@ -24,7 +24,7 @@ const dijkstra: PathFindingAlgorithm = async (
     let endReached = false;
     let i = 0;
 
-    while(queue.length > 0 && !endReached && i < 30) {
+    while(queue.length > 0 && !endReached && i < 20) {
         const children: Coords[] = [];
         for(const coords of queue) {
             // 1. check for end vertex
@@ -33,7 +33,7 @@ const dijkstra: PathFindingAlgorithm = async (
                 break;
             }
             // 2. process neighbours and get next ones to process
-            const nextNeighbours = processNeighbours(coords);
+            const nextNeighbours = processNeighbours(coords, obstacles);
             // 3. add nearest neighbours to the queue
             children.push(...nextNeighbours);
         }
@@ -54,7 +54,7 @@ const dijkstra: PathFindingAlgorithm = async (
 };
 
 
-function processNeighbours(coords: Coords): Coords[] {
+function processNeighbours(coords: Coords, obstacles: Box[]): Coords[] {
     const vertex = vertexMap.get(coordsToString(coords));
     if(!vertex) return [];
     vertex.visited = true;
@@ -68,17 +68,24 @@ function processNeighbours(coords: Coords): Coords[] {
     processNeighbour({ x: x,      y: y - 1 },   dist + 1);
 
     const root2 = Math.SQRT2;
-    updateNeighbour({ x: x + 1, y: y + 1}, coords, dist + root2);
-    updateNeighbour({ x: x - 1, y: y + 1}, coords, dist + root2);
-    updateNeighbour({ x: x - 1, y: y - 1}, coords, dist + root2);
-    updateNeighbour({ x: x + 1, y: y - 1}, coords, dist + root2);
+    processNeighbourDiag({ x: x + 1, y: y + 1}, dist + root2);
+    processNeighbourDiag({ x: x - 1, y: y + 1}, dist + root2);
+    processNeighbourDiag({ x: x - 1, y: y - 1}, dist + root2);
+    processNeighbourDiag({ x: x + 1, y: y - 1}, dist + root2);
 
     return nextNeighbours;
 
     // helper function
     function processNeighbour(neighbourCoords: Coords, dist: number) {
+        if(isBlocked(coords, neighbourCoords, obstacles)) return;
+
         if(!wasVisited(neighbourCoords))
             nextNeighbours.push(neighbourCoords);
+        updateNeighbour(neighbourCoords, coords, dist);
+    }
+    function processNeighbourDiag(neighbourCoords: Coords, dist: number) {
+        if(isBlocked(coords, neighbourCoords, obstacles)) return;
+
         updateNeighbour(neighbourCoords, coords, dist);
     }
 }
@@ -98,9 +105,24 @@ function updateNeighbour(coords: Coords, parentCoords: Coords, dist: number) {
     }
 }
 
-function wasVisited(coords: Coords): boolean {
+function wasVisited(coords: Coords) {
     const vertex = vertexMap.get(coordsToString(coords));
     return vertex?.visited ?? false;
+}
+
+function isColiding(p1: Coords, p2: Coords, box: Box) {
+    return  p1.x > box.coords.x && p1.x < box.coords.x + box.width &&   // p1 inside box
+            p1.y > box.coords.y && p1.y < box.coords.y + box.height ||
+            p2.x > box.coords.x && p2.x < box.coords.x + box.width &&   // p2 inside box
+            p2.y > box.coords.y && p2.y < box.coords.y + box.height;
+}
+
+function isBlocked(p1: Coords, p2: Coords, obstacles: Box[]) {
+    for(const box of obstacles) {
+        const isInside = isColiding(p1, p2, box);
+        if(isInside) return true;
+    }
+    return false;
 }
 
 function getShortestPath(end: Coords) {
@@ -121,4 +143,4 @@ function getAllEdges() {
     return edges;
 }
 
-export default dijkstra;
+export default dijkstra_diagonal;
