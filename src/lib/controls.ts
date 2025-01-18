@@ -1,6 +1,6 @@
 import { get } from "svelte/store";
-import { boxes, canvasState, derivedCanvasState, derivedPathState, dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes, worker } from "./store";
-import type { Coords, WorkerRequest } from "./model";
+import { boxes, canvasState, derivedCanvasState, derivedPathState, dotSpacing, finishIndex, points, selectedEntity, selectedType, shortestPath, startIndex, vertexes, worker } from "./store";
+import type { Box, Coords, WorkerRequest } from "./model";
 
 // update canvas on state change
 derivedCanvasState.subscribe(() => {
@@ -57,6 +57,26 @@ export function moveObstacle(index: number, delta: Coords) {
         return newBoxes;
     });
 }
+
+export function addObstacle(coords: Coords, width: number, height: number) {
+    // add the new box
+    boxes.update((boxes) => {
+        const newBox: Box = {
+            coords,
+            width,
+            height
+        }
+        const newBoxes = [
+            ...boxes,
+            newBox
+        ]
+        return newBoxes;
+    })
+    // select the new box
+    selectedType.set(1);
+    selectedEntity.set(get(boxes).length - 1);
+}
+
 export function updateCanvas() {
     if(!get(canvasState)) return;
 
