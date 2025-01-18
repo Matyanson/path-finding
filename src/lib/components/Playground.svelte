@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { moveObstacle, movePoint, updateCanvas } from "$lib/controls";
+    import { calculatePath, moveObstacle, movePoint, updateCanvas } from "$lib/controls";
     import type { Coords } from "$lib/model";
     import { createMouseController } from "$lib/mouseController";
     import { selectedEntity, selectedType, setCanvas, startIndex } from "$lib/store";
@@ -17,6 +17,10 @@
         updateCanvas();
     }
 
+    function onMouseBtn(isDown: boolean) {
+        if(!isDown) calculatePath(true);
+    }
+
     function onMouseMove(delta: Coords) {
         switch($selectedType) {
             case 0:
@@ -31,6 +35,7 @@
     onMount(() => {
         mouseController.init(canvas);
         mouseController.deltaPosition.subscribe(onMouseMove);
+        mouseController.isDown.subscribe(onMouseBtn)
 
         // store canvas globally
         setCanvas(canvas);

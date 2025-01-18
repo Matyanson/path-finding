@@ -12,7 +12,7 @@ derivedPathState.subscribe(() => {
     calculatePath();
 });
 
-export function calculatePath() {
+export function calculatePath(priority = false) {
     const w = get(worker);
     if(!w) return;
     workerRequestIndex.update(x => x + 1);
@@ -22,8 +22,7 @@ export function calculatePath() {
         endPoint: get(points)[get(finishIndex)],
         dotSpacing: get(dotSpacing),
         obstacles: get(boxes),
-        index: get(workerRequestIndex),
-        timestamp: performance.now() + performance.timeOrigin
+        timestamp: priority ? Infinity : performance.now() + performance.timeOrigin
     };
     w.postMessage(request);
 }

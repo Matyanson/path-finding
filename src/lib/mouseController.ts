@@ -47,6 +47,7 @@ export function createMouseController() {
     return {
         position,
         deltaPosition,
+        isDown,
         init,
         destroy
     }
