@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { boxes, canvasState, derivedCanvasState, derivedPathState, dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes, worker, workerRequestIndex } from "./store";
+import { boxes, canvasState, derivedCanvasState, derivedPathState, dotSpacing, finishIndex, points, shortestPath, startIndex, vertexes, worker } from "./store";
 import type { Coords, WorkerRequest } from "./model";
 
 // update canvas on state change
@@ -15,7 +15,6 @@ derivedPathState.subscribe(() => {
 export function calculatePath(priority = false) {
     const w = get(worker);
     if(!w) return;
-    workerRequestIndex.update(x => x + 1);
     
     const request: WorkerRequest = {
         startPoint: get(points)[get(startIndex)],

@@ -5,7 +5,7 @@ import dijkstra_diagonal from "$lib/algorithms/dijkstra_diagonal";
 import type { Box, WorkerRequest, WorkerResponse } from "$lib/model";
 import { pixelToPoint, pixelToPointRound } from "./util-functions";
 
-let lastRequestProcessedTime = 0;   // relative to originTime
+let lastRequestProcessedTime = 0;
 
 self.onmessage = (event: MessageEvent) => {
     // update request
@@ -53,8 +53,4 @@ async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
     const res = await dijkstra_diagonal(start, end, pointBoxes);
     
     return res;
-}
-
-function sleep(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
 }

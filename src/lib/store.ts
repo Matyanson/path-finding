@@ -25,7 +25,6 @@ export const derivedCanvasState = derived(visualStores, (val) => val);
 // update path
 const pathStores = [dotSpacing, points, startIndex, finishIndex, boxes];
 export const derivedPathState = derived(pathStores, (val) => val);
-export const workerRequestIndex = writable(0);
 
 export function setCanvas(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d');
