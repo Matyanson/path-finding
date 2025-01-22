@@ -2,8 +2,9 @@
     import { onMount } from "svelte";
     import MyWorker from "$lib/workers/path-finder?worker&inline";
     import type { WorkerResponse } from "$lib/model";
-    import { shortestPath, vertexes, worker } from "$lib/store";
+    import { selectedAlgorithm, shortestPath, vertexes, worker } from "$lib/store";
     import { calculatePath } from "$lib/controls";
+    import algorithms from "$lib/algorithms";
 
     onMount(() => {
         return () => {
@@ -42,6 +43,13 @@
 </script>
 
 <div>
+    <select bind:value={$selectedAlgorithm}>
+        {#each algorithms as alg, i}
+        <option value={i}>
+            {alg.name}
+        </option>
+        {/each}
+    </select>
     <button on:click={startCalculation}>Start</button>
     <button on:click={stopWorker}>Stop</button>
     <button on:click={clearPath}>Clear Path</button>

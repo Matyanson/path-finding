@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { boxes, canvasState, derivedCanvasState, derivedPathState, dotSpacing, finishIndex, points, selectedEntity, selectedType, shortestPath, startIndex, vertexes, worker } from "./store";
+import { boxes, canvasState, derivedCanvasState, derivedPathState, dotSpacing, finishIndex, points, selectedAlgorithm, selectedEntity, selectedType, shortestPath, startIndex, vertexes, worker } from "./store";
 import type { Box, Coords, WorkerRequest } from "./model";
 
 // update canvas on state change
@@ -21,7 +21,8 @@ export function calculatePath(priority = false) {
         endPoint: get(points)[get(finishIndex)],
         dotSpacing: get(dotSpacing),
         obstacles: get(boxes),
-        timestamp: priority ? Infinity : performance.now() + performance.timeOrigin
+        timestamp: priority ? Infinity : performance.now() + performance.timeOrigin,
+        algorithmIndex: get(selectedAlgorithm)
     };
     w.postMessage(request);
 }

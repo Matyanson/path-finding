@@ -1,7 +1,6 @@
 /// <reference lib="webworker" />
 
-import dijkstra from "$lib/algorithms/dijkstra";
-import dijkstra_diagonal from "$lib/algorithms/dijkstra_diagonal";
+import algorithms from "$lib/algorithms";
 import type { Box, WorkerRequest, WorkerResponse } from "$lib/model";
 import { pixelToPoint, pixelToPointRound } from "./util-functions";
 
@@ -29,7 +28,7 @@ async function processNextRequest(request: WorkerRequest) {
 }
 
 async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
-    const { startPoint, endPoint, dotSpacing, obstacles } = request;
+    const { startPoint, endPoint, dotSpacing, obstacles, algorithmIndex } = request;
 
     // --- convert pixels to point coords ---
     // points
@@ -48,9 +47,8 @@ async function getResponse(request: WorkerRequest): Promise<WorkerResponse> {
         }
         return res;
     })
-
-    // const res = await dijkstra(start, end, pointBoxes);
-    const res = await dijkstra_diagonal(start, end, pointBoxes);
+    const getShortestPath = algorithms[algorithmIndex].func;
+    const res = await getShortestPath(start, end, pointBoxes);
     
     return res;
 }

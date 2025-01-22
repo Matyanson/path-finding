@@ -14,6 +14,7 @@ export const selectedType = writable(0);
 export const selectedEntity = writable(0);
 
 // algorithm visualization
+export const selectedAlgorithm = writable(0);
 export const worker = writable<Worker | null>(null);
 export const vertexes = writable<Edge[]>([]);
 export const shortestPath = writable<Edge[]>([]);

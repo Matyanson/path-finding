@@ -4,7 +4,8 @@ export type WorkerRequest = {
     endPoint: Coords,
     dotSpacing: number,
     obstacles: Box[],
-    timestamp: number
+    timestamp: number,
+    algorithmIndex: number
 }
 
 export type WorkerResponse = {
