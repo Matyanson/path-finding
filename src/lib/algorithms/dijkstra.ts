@@ -23,7 +23,7 @@ const dijkstra: PathFindingAlgorithm = async (
     let endReached = false;
     let i = 0;
 
-    while(queue.length > 0 && !endReached && i < 30) {
+    while(queue.length > 0 && !endReached && i < 100) {
         const children: Coords[] = [];
         for(const coords of queue) {
             // 1. check for end vertex

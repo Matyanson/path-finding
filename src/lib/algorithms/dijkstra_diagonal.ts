@@ -1,21 +1,17 @@
 import type { Box, Coords, Edge, PathFindingAlgorithm, StringCoords } from "$lib/model";
 import { coordsEqual, coordsToString, } from "$lib/workers/util-functions";
+import PathfindingGrid from "./data-structures/grid";
 
-type Vertex = {
-    coords: Coords,
-    parent: Coords,
-    dist: number,
-    visited: boolean
-}
-
-const vertexMap = new Map<StringCoords, Vertex>();
+const width = 1000;
+const height = 1000;
+let grid: PathfindingGrid;
 
 const dijkstra_diagonal: PathFindingAlgorithm = async (
     startPoint: Coords,
     endPoint: Coords,
     obstacles: Box[]
 ) => {
-    vertexMap.clear();
+    grid = new PathfindingGrid(width, height, startPoint);
 
     // save start vertex to the map
     updateNeighbour(startPoint, startPoint, 0);
@@ -55,12 +51,11 @@ const dijkstra_diagonal: PathFindingAlgorithm = async (
 
 
 function processNeighbours(coords: Coords, obstacles: Box[]): Coords[] {
-    const vertex = vertexMap.get(coordsToString(coords));
-    if(!vertex) return [];
-    vertex.visited = true;
+    const vertex = grid.getVertexView(coords.x, coords.y);
+    vertex.isVisited = true;
 
     const nextNeighbours: Coords[] = [];
-    const dist = vertex.dist;
+    const dist = vertex.distance;
     const { x, y } = coords;
     processNeighbour({ x: x + 1,  y: y },       dist + 1);
     processNeighbour({ x: x,      y: y + 1 },   dist + 1);
@@ -79,35 +74,33 @@ function processNeighbours(coords: Coords, obstacles: Box[]): Coords[] {
     function processNeighbour(neighbourCoords: Coords, dist: number) {
         if(isBlocked(coords, neighbourCoords, obstacles)) return;
 
-        if(!wasVisited(neighbourCoords))
+        if(!wasVisited(neighbourCoords)) {
             nextNeighbours.push(neighbourCoords);
-        updateNeighbour(neighbourCoords, coords, dist);
+            updateNeighbour(neighbourCoords, coords, dist);
+        }
     }
     function processNeighbourDiag(neighbourCoords: Coords, dist: number) {
         if(isBlocked(coords, neighbourCoords, obstacles)) return;
 
-        updateNeighbour(neighbourCoords, coords, dist);
+        if(!wasVisited(neighbourCoords)) {
+            updateNeighbour(neighbourCoords, coords, dist);
+        }
     }
 }
 
 function updateNeighbour(coords: Coords, parentCoords: Coords, dist: number) {
-    const key = coordsToString(coords);
-    const vertex = vertexMap.get(key);
-    const newVertex = {
-        coords,
-        parent: parentCoords,
-        dist,
-        visited: false
-    };
-    if(!vertex || dist < vertex.dist) {
-        // update value in the map
-        vertexMap.set(key, newVertex);
+    const vertex = grid.getVertexView(coords.x, coords.y);
+    if(!vertex.isInitialized || dist < vertex.distance) {
+        // update value in the grid
+        vertex.parent = grid.getIndex(parentCoords.x, parentCoords.y);
+        vertex.distance = dist;
+        vertex.isInitialized = true;
     }
 }
 
 function wasVisited(coords: Coords) {
-    const vertex = vertexMap.get(coordsToString(coords));
-    return vertex?.visited ?? false;
+    const vertex = grid.getVertexView(coords.x, coords.y);
+    return vertex.isVisited;
 }
 
 function isColiding(p1: Coords, p2: Coords, box: Box) {
@@ -128,18 +121,34 @@ function isBlocked(p1: Coords, p2: Coords, obstacles: Box[]) {
 function getShortestPath(end: Coords) {
     const path: Edge[] = [];
 
-    let curr = vertexMap.get(coordsToString(end));
-    while(curr && !coordsEqual(curr.coords, curr.parent)) {
-        path.push({ coords: curr.coords, parent: curr.parent });
-        curr = vertexMap.get(coordsToString(curr.parent));
-    }
+    let curr = grid.getVertexView(end.x, end.y);
+    let prevCoords = end;
+    let currCoords = grid.getCoords(curr.parent);
+    do {
+        path.push({ coords: prevCoords, parent: currCoords });
+        curr = grid.getVertexView(currCoords.x, currCoords.y);
+        prevCoords = { x: currCoords.x, y: currCoords.y };
+        currCoords = grid.getCoords(curr.parent);
+    } while(curr.isInitialized && !coordsEqual(currCoords, prevCoords))
     return path;
 }
 
 function getAllEdges() {
-    const edges = [...vertexMap.values().map(v => {
-        return { coords: v.coords, parent: v.parent }
-    })];
+    const edges: Edge[] = [];
+    const offsetX = grid.offsetX;
+    const offsetY = grid.offsetY;
+    for(let y = 0; y < height; y++) {
+        for(let x = 0; x < width; x++) {
+            const v = grid.getVertexView(x - offsetX, y - offsetY);
+            if(!v.isInitialized) continue;
+
+            const parentCoords = grid.getCoords(v.parent);
+            edges.push({
+                coords: { x: x - offsetX, y: y - offsetY },
+                parent: parentCoords
+            });
+        }
+    }
     return edges;
 }
 

@@ -9,12 +9,12 @@ type PathFindingAlgorithmObj = {
 
 const algorithms: PathFindingAlgorithmObj[] = [
     {
-        name: "dijkstra manhatan",
-        func: dijkstra
-    },
-    {
         name: "dijkstra",
         func: dijkstra_diagonal
+    },
+    {
+        name: "dijkstra manhatan",
+        func: dijkstra
     }
 ];
 
