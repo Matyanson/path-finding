@@ -26,6 +26,10 @@ export function coordsEqual(c1: Coords, c2: Coords) {
     return c1.x == c2.x && c1.y == c2.y;
 }
 
+export function getDistance(c1: Coords, c2: Coords) {
+    return Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
+}
+
 export function getBoardBounds(points: Coords[], boxes: Box[]): Box {
     const coordList: Coords[] = points
     .concat(
