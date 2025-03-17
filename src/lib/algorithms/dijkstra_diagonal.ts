@@ -1,9 +1,7 @@
 import type { Box, Coords, Edge, PathFindingAlgorithm, StringCoords } from "$lib/model";
-import { coordsEqual, coordsToString, } from "$lib/workers/util-functions";
+import { coordsEqual, coordsToString, getBoardBounds, } from "$lib/workers/util-functions";
 import PathfindingGrid from "./data-structures/grid";
 
-const width = 1000;
-const height = 1000;
 let grid: PathfindingGrid;
 
 const dijkstra_diagonal: PathFindingAlgorithm = async (
@@ -11,7 +9,8 @@ const dijkstra_diagonal: PathFindingAlgorithm = async (
     endPoint: Coords,
     obstacles: Box[]
 ) => {
-    grid = new PathfindingGrid(width, height, startPoint);
+    const bounds = getBoardBounds([startPoint, endPoint], obstacles);
+    grid = new PathfindingGrid({ x: bounds.coords.x, y: bounds.coords.y }, bounds.width + 1, bounds.height + 1);
 
     // save start vertex to the map
     updateNeighbour(startPoint, startPoint, 0);
@@ -20,7 +19,7 @@ const dijkstra_diagonal: PathFindingAlgorithm = async (
     let endReached = false;
     let i = 0;
 
-    while(queue.length > 0 && !endReached && i < 20) {
+    while(queue.length > 0 && !endReached) {
         const children: Coords[] = [];
         for(const coords of queue) {
             // 1. check for end vertex
@@ -51,6 +50,8 @@ const dijkstra_diagonal: PathFindingAlgorithm = async (
 
 
 function processNeighbours(coords: Coords, obstacles: Box[]): Coords[] {
+    if(!grid.isInBounds(coords.x, coords.y)) return [];
+
     const vertex = grid.getVertexView(coords.x, coords.y);
     vertex.isVisited = true;
 
@@ -99,8 +100,12 @@ function updateNeighbour(coords: Coords, parentCoords: Coords, dist: number) {
 }
 
 function wasVisited(coords: Coords) {
-    const vertex = grid.getVertexView(coords.x, coords.y);
-    return vertex.isVisited;
+    try {
+        const vertex = grid.getVertexView(coords.x, coords.y);
+        return vertex.isVisited;
+    } catch {
+        return true;
+    }
 }
 
 function isColiding(p1: Coords, p2: Coords, box: Box) {
@@ -111,6 +116,9 @@ function isColiding(p1: Coords, p2: Coords, box: Box) {
 }
 
 function isBlocked(p1: Coords, p2: Coords, obstacles: Box[]) {
+    if(!grid.isInBounds(p1.x, p1.y) || !grid.isInBounds(p2.x, p2.y))
+        return true;
+    
     for(const box of obstacles) {
         const isInside = isColiding(p1, p2, box);
         if(isInside) return true;
@@ -124,27 +132,25 @@ function getShortestPath(end: Coords) {
     let curr = grid.getVertexView(end.x, end.y);
     let prevCoords = end;
     let currCoords = grid.getCoords(curr.parent);
-    do {
+    while(curr.isInitialized && !coordsEqual(currCoords, prevCoords)) {
         path.push({ coords: prevCoords, parent: currCoords });
         curr = grid.getVertexView(currCoords.x, currCoords.y);
         prevCoords = { x: currCoords.x, y: currCoords.y };
         currCoords = grid.getCoords(curr.parent);
-    } while(curr.isInitialized && !coordsEqual(currCoords, prevCoords))
+    }
     return path;
 }
 
 function getAllEdges() {
     const edges: Edge[] = [];
-    const offsetX = grid.offsetX;
-    const offsetY = grid.offsetY;
-    for(let y = 0; y < height; y++) {
-        for(let x = 0; x < width; x++) {
-            const v = grid.getVertexView(x - offsetX, y - offsetY);
+    for(let y = 0; y < grid.n; y++) {
+        for(let x = 0; x < grid.m; x++) {
+            const v = grid.getVertexView(x + grid.offsetX, y + grid.offsetY);
             if(!v.isInitialized) continue;
 
             const parentCoords = grid.getCoords(v.parent);
             edges.push({
-                coords: { x: x - offsetX, y: y - offsetY },
+                coords: { x: x + grid.offsetX, y: y + grid.offsetY },
                 parent: parentCoords
             });
         }

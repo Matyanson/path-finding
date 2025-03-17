@@ -3,21 +3,21 @@ import VertexView from "./vertex";
 
 class PathfindingGrid {
     private buffer: ArrayBuffer;
-    private readonly m: number;
-    private readonly n: number;
     private readonly k: number;
     private readonly parentSize: number;
     private readonly vertexSize: number;
     private vertexView: VertexView;
+    readonly m: number;
+    readonly n: number;
     readonly offsetX: number;
     readonly offsetY: number;
   
-    constructor(m: number, n: number, center: Coords) {
-      this.m = m;
-      this.n = n;
+    constructor(position: Coords, m: number, n: number) {
+      this.m = Math.floor(m);
+      this.n = Math.floor(n);
       this.k = m * n;
-      this.offsetX = Math.floor(0.5 * m - center.x);
-      this.offsetY = Math.floor(0.5 * n - center.y);
+      this.offsetX = Math.floor(position.x);
+      this.offsetY = Math.floor(position.y);
   
       // Determine the size of the parent field
       if (this.k <= 256) {
@@ -40,17 +40,17 @@ class PathfindingGrid {
       // Create reusable vertex
       this.vertexView = new VertexView(this.buffer, this.parentSize);
     }
-  
+    // todo: handle negative cases!!!
     getIndex(x: number, y: number): number {
-      x = x + this.offsetX;
-      y = y + this.offsetY;
+      x = x - this.offsetX;
+      y = y - this.offsetY;
       return (y * this.m + x);
     }
 
     getCoords(index: number): Coords {
       const res = {
-          x: index % this.m             - this.offsetX,
-          y: Math.floor(index / this.m) - this.offsetY
+          x: index % this.m             + this.offsetX,
+          y: Math.floor(index / this.m) + this.offsetY
       }
       return res;
     }
@@ -59,6 +59,12 @@ class PathfindingGrid {
       const index = this.getIndex(x, y);
       this.vertexView.pointTo(index);
       return this.vertexView;
+    }
+
+    isInBounds(x: number, y: number) {
+      x = x - this.offsetX;
+      y = y - this.offsetY;
+      return x >= 0 && x < this.m && y >= 0 && y < this.n;
     }
 }
 
