@@ -1,6 +1,6 @@
 <script lang="ts">
     import { addObstacle } from "$lib/controls";
-    import { boxes, points, selectedEntity, selectedType } from "$lib/store";
+    import { boxes, dotSpacing, points, selectedEntity, selectedType } from "$lib/store";
     import IconButton from "./IconButton.svelte";
     import ItemButton from "./ItemButton.svelte";
     import WorkerControls from "./WorkerControls.svelte";
@@ -14,6 +14,7 @@
     <IconButton on:click={() => closed = !closed} src="icons/settings.svg" alt="open settings" />
     <div class="menu" class:closed>
         <IconButton on:click={() => closed = !closed} src="icons/x-circle.svg" alt="close menu" />
+        dot spacing: <input type="number" bind:value={$dotSpacing} />
         points:
         {#each $points as point, i}
             <ItemButton type={0} index={i} />
