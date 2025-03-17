@@ -20,32 +20,45 @@ const dijkstra_diagonal: PathFindingAlgorithm = async (
     let i = 0;
 
     while(queue.length > 0 && !endReached) {
-        const children: Coords[] = [];
-        for(const coords of queue) {
-            // 1. check for end vertex
-            if(coords.x == endPoint.x && coords.y == endPoint.y){
-                endReached = true;
-                break;
-            }
-            // 2. process neighbours and get next ones to process
-            const nextNeighbours = processNeighbours(coords, obstacles);
-            // 3. add nearest neighbours to the queue
-            children.push(...nextNeighbours);
+        const coords = queue.shift() as Coords;
+        // 1. check for end vertex
+        if(coords.x == endPoint.x && coords.y == endPoint.y){
+            endReached = true;
+            break;
+        }
+        // 2. process neighbours and get next ones to process
+        const nextNeighbours = processNeighbours(coords, obstacles);
+        // 3. add nearest neighbours to the queue
+        for(const nextCoords of nextNeighbours) {
+            insertVertex(nextCoords);
         }
         
-        // 4. prepare for next itteration
-        queue = children;
         i++;
     }
 
     const shortestPath = getShortestPath(endPoint);
     const allEdges = getAllEdges();
 
-
     return {
         allEdges,
         shortestPath
     };
+
+    function insertVertex(coords: Coords) {
+        queue.push(coords);
+        let vertex = grid.getVertexView(coords.x, coords.y);
+        const dist = vertex.distance;
+
+        for (let i = queue.length - 1; i > 0; i--) {
+            const coords2 = queue[i - 1];
+            vertex = grid.getVertexView(coords2.x, coords2.y);
+            if(dist >= vertex.distance) break;
+
+            const temp = queue[i - 1];
+            queue[i - 1] = queue[i];
+            queue[i] = temp;
+        }
+    }
 };
 
 
@@ -64,10 +77,10 @@ function processNeighbours(coords: Coords, obstacles: Box[]): Coords[] {
     processNeighbour({ x: x,      y: y - 1 },   dist + 1);
 
     const root2 = Math.SQRT2;
-    processNeighbourDiag({ x: x + 1, y: y + 1}, dist + root2);
-    processNeighbourDiag({ x: x - 1, y: y + 1}, dist + root2);
-    processNeighbourDiag({ x: x - 1, y: y - 1}, dist + root2);
-    processNeighbourDiag({ x: x + 1, y: y - 1}, dist + root2);
+    processNeighbour({ x: x + 1, y: y + 1}, dist + root2);
+    processNeighbour({ x: x - 1, y: y + 1}, dist + root2);
+    processNeighbour({ x: x - 1, y: y - 1}, dist + root2);
+    processNeighbour({ x: x + 1, y: y - 1}, dist + root2);
 
     return nextNeighbours;
 
@@ -76,14 +89,9 @@ function processNeighbours(coords: Coords, obstacles: Box[]): Coords[] {
         if(isBlocked(coords, neighbourCoords, obstacles)) return;
 
         if(!wasVisited(neighbourCoords)) {
-            nextNeighbours.push(neighbourCoords);
-            updateNeighbour(neighbourCoords, coords, dist);
-        }
-    }
-    function processNeighbourDiag(neighbourCoords: Coords, dist: number) {
-        if(isBlocked(coords, neighbourCoords, obstacles)) return;
-
-        if(!wasVisited(neighbourCoords)) {
+            const vertex = grid.getVertexView(neighbourCoords.x, neighbourCoords.y);
+            if(!vertex.isInitialized)
+                nextNeighbours.push(neighbourCoords);
             updateNeighbour(neighbourCoords, coords, dist);
         }
     }
