@@ -1,9 +1,12 @@
 <script lang="ts">
     import { addObstacle } from "$lib/controls";
     import { boxes, dotSpacing, points, selectedEntity, selectedType } from "$lib/store";
+    import { get } from "svelte/store";
     import IconButton from "./IconButton.svelte";
     import ItemButton from "./ItemButton.svelte";
     import WorkerControls from "./WorkerControls.svelte";
+    import { saveData } from "$lib/file";
+    import DataInput from "./DataInput.svelte";
 
     let closed = false;
 
@@ -27,12 +30,15 @@
         Properties:
         <div class="properties">
         {#if $selectedType == 1}
-            width: <input type="range" max="1000" bind:value={$boxes[$selectedEntity].width} />
+            width: <input type="range" max="1000" bind:value={$boxes[$selectedEntity].width} /><br>
             height: <input type="range" max="1000" bind:value={$boxes[$selectedEntity].height} />
         {/if}
         </div>
         Calculation:
         <WorkerControls />
+        <br>
+        <button on:click={() => saveData('data')}>save data</button>
+        <DataInput />
     </div>
 </div>
 

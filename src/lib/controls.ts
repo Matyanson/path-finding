@@ -112,14 +112,14 @@ export function updateCanvas() {
         );
     }
 
-    // draw coord points
-    const pointRadius = get(dotSpacing) / 16;
-    ctx.fillStyle = "#aaa";
-    for (let y = offset; y < canvas.height; y += get(dotSpacing)) {
-        for (let x = offset; x < canvas.width; x+= get(dotSpacing)) {
-            drawPoint(ctx, x, y, pointRadius);
-        }
-    }
+    // // draw coord points
+    // const pointRadius = get(dotSpacing) / 16;
+    // ctx.fillStyle = "#aaa";
+    // for (let y = offset; y < canvas.height; y += get(dotSpacing)) {
+    //     for (let x = offset; x < canvas.width; x+= get(dotSpacing)) {
+    //         drawPoint(ctx, x, y, pointRadius);
+    //     }
+    // }
     
     // draw start and finish points
     const startCoords = get(points)[get(startIndex)];
